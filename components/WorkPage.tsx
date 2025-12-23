@@ -1,15 +1,17 @@
 // components/WorkPage.tsx
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { WorkPageProps, Project } from './types';
 import { EncryptedText } from './EncryptedText';
 import { projects } from './projectData';
+import { gsap } from 'gsap';
 
 export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<string>("");
-  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
+  const projectGridRef = useRef<HTMLDivElement>(null);
+  const projectCardsRef = useRef<(HTMLDivElement | null)[]>([]);
   
   useEffect(() => {
     const updateTime = () => {
@@ -34,40 +36,78 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleImageError = (projectId: string, imagePath: string) => {
-    console.error(`Failed to load image for project ${projectId}: ${imagePath}`);
-    setImageErrors(prev => ({ ...prev, [projectId]: true }));
+  // GSAP animation for project grid entrance from bottom
+  useEffect(() => {
+    if (projectGridRef.current) {
+      gsap.fromTo(
+        projectGridRef.current,
+        { 
+          y: 200,
+          opacity: 0 
+        },
+        { 
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          ease: "power3.out",
+          delay: 0.3
+        }
+      );
+    }
+
+    // Stagger animation for project cards
+    if (projectCardsRef.current.length > 0) {
+      gsap.fromTo(
+        projectCardsRef.current,
+        { 
+          y: 100,
+          opacity: 0,
+          scale: 0.8
+        },
+        { 
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 0.8,
+          ease: "back.out(1.4)",
+          stagger: 0.1,
+          delay: 0.5
+        }
+      );
+    }
+  }, []);
+
+  const handleMouseEnter = (index: number, project: Project) => {
+    setHoveredProject(project);
+    if (projectCardsRef.current[index]) {
+      gsap.to(projectCardsRef.current[index], {
+        scale: 1.08,
+        duration: 0.4,
+        ease: "power2.out"
+      });
+    }
   };
 
-  const handleImageLoad = (projectId: string, imagePath: string) => {
-    console.log(`Successfully loaded image for project ${projectId}: ${imagePath}`);
+  const handleMouseLeave = (index: number) => {
+    setHoveredProject(null);
+    if (projectCardsRef.current[index]) {
+      gsap.to(projectCardsRef.current[index], {
+        scale: 1,
+        duration: 0.4,
+        ease: "power2.out"
+      });
+    }
   };
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-black text-white font-mono flex flex-col">
+    <div className="h-screen w-screen overflow-hidden bg-black text-white font-mono flex flex-col pt-20 md:pt-24">
       {/* Hero Section */}
       <div className="flex-1 flex flex-col justify-center px-6 mb-12">
         <div className="max-w-7xl mx-auto w-full">
           <h1 className="text-[3rem] md:text-[5rem] lg:text-[7rem] xl:text-[8rem] leading-none font-bold tracking-tight mb-8">
             <div>
-              {!isFirstLoad && !hoveredProject && <span className="text-cyan-400">[</span>}
-              <EncryptedText 
-                text={
-                  isFirstLoad 
-                    ? "WELCOME" 
-                    : hoveredProject 
-                      ? hoveredProject.name.split(' ')[0] 
-                      : "VIKI"
-                }
-                encryptedClassName="text-neutral-700"
-                revealedClassName="text-white"
-                revealDelayMs={40}
-                key={isFirstLoad ? 'welcome-1' : hoveredProject ? hoveredProject.id + '-1' : 'default-1'}
-              />
-              {!isFirstLoad && !hoveredProject && <span className="text-cyan-400">]</span>}
-            </div>
-            <div>
-              <EncryptedText 
+              
+           <EncryptedText 
                 text={
                   isFirstLoad 
                     ? "" 
@@ -80,6 +120,25 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
                 revealDelayMs={45}
                 key={isFirstLoad ? 'welcome-2' : hoveredProject ? hoveredProject.id + '-2' : 'default-2'}
               />
+             
+            <div>
+              {!isFirstLoad && !hoveredProject && <span className="text-cyan-400">[</span>}
+             
+                  <EncryptedText 
+                text={
+                  isFirstLoad 
+                    ? "WELCOME" 
+                    : hoveredProject 
+                      ? hoveredProject.name.split(' ')[0] 
+                      : "VIKI"
+                }
+                encryptedClassName="text-neutral-700"
+                revealedClassName="text-white"
+                revealDelayMs={40}
+                key={isFirstLoad ? 'welcome-1' : hoveredProject ? hoveredProject.id + '-1' : 'default-1'}
+              />
+               {!isFirstLoad && !hoveredProject && <span className="text-cyan-400">]</span>}
+            </div>
             </div>
           </h1>
           
@@ -133,31 +192,26 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
       </div>
 
       {/* Projects Grid */}
-      <div className="px-6 pb-6">
+     <div ref={projectGridRef} className="px-6 pb-6">
         <div className="max-w-7xl mx-auto flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {projects.map((project, index) => (
             <div 
               key={project.id}
+              ref={(el) => {
+                projectCardsRef.current[index] = el;
+              }}
               className="group relative aspect-[4/3] min-w-[200px] max-w-[200px] flex-shrink-0 snap-center overflow-hidden bg-neutral-900 rounded-lg cursor-pointer"
-              onMouseEnter={() => setHoveredProject(project)}
-              onMouseLeave={() => setHoveredProject(null)}
+              onMouseEnter={() => handleMouseEnter(index, project)}
+              onMouseLeave={() => handleMouseLeave(index)}
               onClick={() => onProjectClick(project)}
             >
-              {imageErrors[project.id] ? (
-                <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
-                  <div className="text-red-500 text-xs mb-2">Image failed to load</div>
-                  <div className="text-neutral-600 text-[10px] break-all">{project.image}</div>
-                </div>
-              ) : (
-                <img 
-                  src={project.image}
-                  alt={`Project ${project.id}`}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  onError={() => handleImageError(project.id, project.image)}
-                  onLoad={() => handleImageLoad(project.id, project.image)}
-                />
-              )}
-              <div className="absolute bottom-4 left-4 text-sm">
+              <img 
+                src={project.image}
+                alt={`Project ${project.id}`}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+              <div className="absolute bottom-4 left-4 text-sm z-10">
                 <EncryptedText 
                   text={`[${project.id}]`}
                   encryptedClassName="text-neutral-600"
@@ -165,7 +219,6 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
                   revealDelayMs={50 + index * 10}
                 />
               </div>
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
             </div>
           ))}
         </div>

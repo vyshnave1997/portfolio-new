@@ -8,11 +8,11 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({ project, o
   const [currentMediaIndex, setCurrentMediaIndex] = useState<number>(0);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black text-white font-mono overflow-y-auto">
+    <div className="fixed inset-0 z-50 bg-black top-10 text-white font-mono overflow-y-auto">
       {/* Close Button */}
       <button 
         onClick={onClose}
-        className="fixed top-6 right-6 text-sm hover:text-cyan-400 transition z-50"
+        className="fixed top-15 right-10 text-sm hover:text-cyan-400 transition z-50"
       >
         <span className="text-cyan-400">[</span>
         <HoverEncryptedText text=" CLOSE " />
