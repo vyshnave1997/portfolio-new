@@ -1,6 +1,7 @@
 // components/Portfolio.tsx
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import gsap from 'gsap';
 import { Project } from './types';
 import { Navbar } from './Navbar';
 import { WorkPage } from './WorkPage';
@@ -11,26 +12,73 @@ import { ProjectDetailPage } from './ProjectDetailPage';
 
 const Portfolio: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('work');
-  const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
-  const [direction, setDirection] = useState<'left' | 'right'>('right');
   const [showMoreInfo, setShowMoreInfo] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  
+  const pageContainerRef = useRef<HTMLDivElement>(null);
+  const workRef = useRef<HTMLDivElement>(null);
+  const infoRef = useRef<HTMLDivElement>(null);
+  const archiveRef = useRef<HTMLDivElement>(null);
+  const isAnimatingRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    // Initial setup - position all pages
+    if (workRef.current && infoRef.current && archiveRef.current) {
+      gsap.set(workRef.current, { xPercent: 0, opacity: 1 });
+      gsap.set(infoRef.current, { xPercent: 100, opacity: 0 });
+      gsap.set(archiveRef.current, { xPercent: 100, opacity: 0 });
+    }
+  }, []);
 
   const handleNavigate = (page: string) => {
-    if (page === currentPage) return;
+    if (page === currentPage || isAnimatingRef.current) return;
+    
+    isAnimatingRef.current = true;
+    setShowMoreInfo(false);
     
     const pages = ['work', 'info', 'archive'];
     const currentIndex = pages.indexOf(currentPage);
     const newIndex = pages.indexOf(page);
+    const direction = newIndex > currentIndex ? 1 : -1;
     
-    setDirection(newIndex > currentIndex ? 'right' : 'left');
-    setIsTransitioning(true);
-    setShowMoreInfo(false);
+    const refs = {
+      work: workRef.current,
+      info: infoRef.current,
+      archive: archiveRef.current
+    };
     
-    setTimeout(() => {
-      setCurrentPage(page);
-      setIsTransitioning(false);
-    }, 300);
+    const currentRef = refs[currentPage as keyof typeof refs];
+    const newRef = refs[page as keyof typeof refs];
+    
+    if (!currentRef || !newRef) return;
+    
+    const timeline = gsap.timeline({
+      onComplete: () => {
+        setCurrentPage(page);
+        isAnimatingRef.current = false;
+      }
+    });
+    
+    // Set initial position for incoming page
+    gsap.set(newRef, { 
+      xPercent: direction * 100, 
+      opacity: 0 
+    });
+    
+    // Animate both pages
+    timeline
+      .to(currentRef, {
+        xPercent: direction * -100,
+        opacity: 0,
+        duration: 1.2,
+        ease: "power3.inOut"
+      }, 0)
+      .to(newRef, {
+        xPercent: 0,
+        opacity: 1,
+        duration: 1.2,
+        ease: "power3.inOut"
+      }, 0);
   };
 
   const handleMoreInfoToggle = () => {
@@ -47,15 +95,6 @@ const Portfolio: React.FC = () => {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden bg-black">
-      <style jsx global>{`
-        .page-enter {
-          --slide-from: ${direction === 'right' ? '100%' : '-100%'};
-        }
-        .page-exit {
-          --slide-to: ${direction === 'right' ? '-100%' : '100%'};
-        }
-      `}</style>
-
       <Navbar 
         currentPage={currentPage} 
         onNavigate={handleNavigate}
@@ -65,7 +104,7 @@ const Portfolio: React.FC = () => {
       
       {/* Project Detail Overlay */}
       {selectedProject && (
-        <div className="project-detail-enter">
+        <div className="absolute inset-0 z-40 project-detail-enter">
           <ProjectDetailPage project={selectedProject} onClose={handleCloseProject} />
         </div>
       )}
@@ -77,10 +116,22 @@ const Portfolio: React.FC = () => {
         </div>
       )}
       
-      <div className={isTransitioning ? 'page-exit' : 'page-enter'}>
-        {currentPage === 'work' && <WorkPage onProjectClick={handleProjectClick} />}
-        {currentPage === 'info' && <InfoPage onMoreInfoToggle={handleMoreInfoToggle} />}
-        {currentPage === 'archive' && <ArchivePage />}
+      {/* Pages Container */}
+      <div ref={pageContainerRef} className="absolute inset-0">
+        {/* Work Page */}
+        <div ref={workRef} className="absolute inset-0">
+          <WorkPage onProjectClick={handleProjectClick} />
+        </div>
+        
+        {/* Info Page */}
+        <div ref={infoRef} className="absolute inset-0">
+          <InfoPage onMoreInfoToggle={handleMoreInfoToggle} />
+        </div>
+        
+        {/* Archive Page */}
+        <div ref={archiveRef} className="absolute inset-0">
+          <ArchivePage />
+        </div>
       </div>
     </div>
   );
