@@ -9,6 +9,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
   const [hoveredProject, setHoveredProject] = useState<Project | null>(null);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [currentTime, setCurrentTime] = useState<string>("");
+  const [imageErrors, setImageErrors] = useState<Record<string, boolean>>({});
   
   useEffect(() => {
     const updateTime = () => {
@@ -32,6 +33,15 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
     
     return () => clearTimeout(timer);
   }, []);
+
+  const handleImageError = (projectId: string, imagePath: string) => {
+    console.error(`Failed to load image for project ${projectId}: ${imagePath}`);
+    setImageErrors(prev => ({ ...prev, [projectId]: true }));
+  };
+
+  const handleImageLoad = (projectId: string, imagePath: string) => {
+    console.log(`Successfully loaded image for project ${projectId}: ${imagePath}`);
+  };
 
   return (
     <div className="h-screen w-screen overflow-hidden bg-black text-white font-mono flex flex-col">
@@ -123,7 +133,7 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
       </div>
 
       {/* Projects Grid */}
-     <div className="px-6 pb-6">
+      <div className="px-6 pb-6">
         <div className="max-w-7xl mx-auto flex overflow-x-auto gap-6 pb-4 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {projects.map((project, index) => (
             <div 
@@ -133,11 +143,20 @@ export const WorkPage: React.FC<WorkPageProps> = ({ onProjectClick }) => {
               onMouseLeave={() => setHoveredProject(null)}
               onClick={() => onProjectClick(project)}
             >
-              <img 
-                src={project.image}
-                alt={`Project ${project.id}`}
-                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-              />
+              {imageErrors[project.id] ? (
+                <div className="w-full h-full flex flex-col items-center justify-center text-center p-4">
+                  <div className="text-red-500 text-xs mb-2">Image failed to load</div>
+                  <div className="text-neutral-600 text-[10px] break-all">{project.image}</div>
+                </div>
+              ) : (
+                <img 
+                  src={project.image}
+                  alt={`Project ${project.id}`}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  onError={() => handleImageError(project.id, project.image)}
+                  onLoad={() => handleImageLoad(project.id, project.image)}
+                />
+              )}
               <div className="absolute bottom-4 left-4 text-sm">
                 <EncryptedText 
                   text={`[${project.id}]`}

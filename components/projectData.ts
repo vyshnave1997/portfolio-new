@@ -14,9 +14,9 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/tmdb-film-data",
   carbonFootprint: "0.18 G/CO2",
   media: [
-    { type: 'image', url: 'movie-1.png' },
-    { type: 'image', url: 'movie-2.png' },
-    { type: 'image', url: 'movie-3.png' }
+    { type: 'image', url: '/movie-1.png' },
+    { type: 'image', url: '/movie-2.png' },
+    { type: 'image', url: '/movie-3.png' }
   ]
 },
  { 
@@ -31,10 +31,10 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/ecommerce-app",
   carbonFootprint: "0.22 G/CO2",
   media: [
-    { type: 'image', url: 'store-1.png' },
-    { type: 'image', url: 'store-2.png' },
-    { type: 'image', url: 'store-3.png' },
-    { type: 'image', url: 'store-4.png' }
+    { type: 'image', url: '/store-1.png' },
+    { type: 'image', url: '/store-2.png' },
+    { type: 'image', url: '/store-3.png' },
+    { type: 'image', url: '/store-4.png' }
   ]
 },
   { 
@@ -49,9 +49,9 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/viki-signals",
   carbonFootprint: "0.15 G/CO2",
   media: [
-    { type: 'image', url: 'signal-1.png' },
-    { type: 'image', url: 'signal-2.png' },
-    { type: 'image', url: 'signal-3.png' }
+    { type: 'image', url: '/signal-1.png' },
+    { type: 'image', url: '/signal-2.png' },
+    { type: 'image', url: '/signal-3.png' }
   ]
 },
   { 
@@ -66,9 +66,9 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/viki-video",
   carbonFootprint: "0.20 G/CO2",
   media: [
-    { type: 'image', url: 'conn-1.png' },
-    { type: 'image', url: 'con-2.png' },
-    { type: 'image', url: 'conn-3.png' }
+    { type: 'image', url: '/conn-1.png' },
+    { type: 'image', url: '/con-2.png' },
+    { type: 'image', url: '/conn-3.png' }
   ]
 },
   { 
@@ -83,9 +83,9 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/Fitclub",
   carbonFootprint: "0.12 G/CO2",
   media: [
-    { type: 'image', url: 'fit-1.png' },
-    { type: 'image', url: 'fit-2.png' },
-    { type: 'image', url: 'fit-3.png' }
+    { type: 'image', url: '/fit-1.png' },
+    { type: 'image', url: '/fit-2.png' },
+    { type: 'image', url: '/fit-3.png' }
   ]
 },
 { 
@@ -100,9 +100,9 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/Nextjs_Cook-s_kitchen",
   carbonFootprint: "0.16 G/CO2",
   media: [
-    { type: 'image', url: 'cook-1.png' },
-    { type: 'image', url: 'cook-2.png' },
-    { type: 'image', url: 'cook-3.png' }
+    { type: 'image', url: '/cook-1.png' },
+    { type: 'image', url: '/cook-2.png' },
+    { type: 'image', url: '/cook-3.png' }
   ]
 },
 ];
