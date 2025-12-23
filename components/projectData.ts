@@ -31,8 +31,8 @@ export const projects: Project[] = [
   githubUrl: "https://github.com/vyshnave1997/ecommerce-app",
   carbonFootprint: "0.22 G/CO2",
   media: [
-    { type: 'image', url: 'store-1.png' },
-    { type: 'image', url: 'store-2.png' },
+    { type: 'image', url: 'public/store-1.png' },
+    { type: 'image', url: 'publicstore-2.png' },
     { type: 'image', url: 'store-3.png' },
     { type: 'image', url: 'store-4.png' }
   ]
