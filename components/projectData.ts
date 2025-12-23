@@ -32,7 +32,7 @@ export const projects: Project[] = [
   carbonFootprint: "0.22 G/CO2",
   media: [
     { type: 'image', url: 'public/store-1.png' },
-    { type: 'image', url: 'publicstore-2.png' },
+    { type: 'image', url: 'public/store-2.png' },
     { type: 'image', url: 'store-3.png' },
     { type: 'image', url: 'store-4.png' }
   ]
